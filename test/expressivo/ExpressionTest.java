@@ -32,7 +32,13 @@ public class ExpressionTest {
     //   - test different numbers have different hashcodes
     //   - test different expressions have different hashcodes
     //   - test complex expressions maintain consistency
-    
+	//
+    // Variables:
+    //   - Variables are correctly represented as strings
+    //   - Variable equality works as expected
+    //   - Variables can be combined with numbers in expressions
+    //   - Complex expressions with variables are formatted correctly
+    //   - HashCode is consistent for equal variables and expressions containing variables
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
         assert false; // make sure assertions are enabled with VM argument: -ea
@@ -141,6 +147,57 @@ public class ExpressionTest {
             Expression.multiplication(new Number(4.0), new Number(5.0))
         );
         assertEquals(e1.hashCode(), e2.hashCode());
+    }
+    
+    // Variable tests
+    @Test
+    public void testVariableToString() {
+        Expression var = new Variable("x");
+        assertEquals("x", var.toString());
+    }
+    
+    @Test
+    public void testVariableEquals() {
+        Expression var1 = new Variable("x");
+        Expression var2 = new Variable("x");
+        Expression var3 = new Variable("y");
+        
+        assertTrue(var1.equals(var2));
+        assertFalse(var1.equals(var3));
+    }
+    
+    @Test
+    public void testVariableInExpression() {
+        Expression var = new Variable("x");
+        Expression num = new Number(2.0);
+        Expression product = Expression.multiplication(var, num);
+        assertEquals("x*2.0", product.toString());
+    }
+    
+    @Test
+    public void testComplexVariableExpression() {
+        Expression x = new Variable("x");
+        Expression y = new Variable("y");
+        Expression sum = Expression.add(
+            Expression.multiplication(x, new Number(2.0)),
+            Expression.multiplication(y, new Number(3.0))
+        );
+        assertEquals("(x*2.0)+(y*3.0)", sum.toString());
+    }
+    
+    @Test
+    public void testVariableHashCodeConsistency() {
+        Expression var1 = new Variable("x");
+        Expression var2 = new Variable("x");
+        Expression var3 = new Variable("y");
+        
+        assertEquals(var1.hashCode(), var2.hashCode());
+        assertNotEquals(var1.hashCode(), var3.hashCode());
+        
+        // Test hashCode consistency in complex expressions
+        Expression exp1 = Expression.add(var1, new Number(1.0));
+        Expression exp2 = Expression.add(var2, new Number(1.0));
+        assertEquals(exp1.hashCode(), exp2.hashCode());
     }
     
 }
