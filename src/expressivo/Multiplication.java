@@ -42,5 +42,14 @@ public class Multiplication implements Expression {
 	public boolean isPrimitive() {
 		return false;
 	}
-	
+	@Override
+    public Expression differentiate(String variable) {
+        // Differentiation rule for multiplication: d(u * v)/dx = u'v + uv'
+        Expression dLeft = exp1.differentiate(variable);
+        Expression dRight = exp2.differentiate(variable);
+        return new Addition(
+            new Multiplication(dLeft, exp2),
+            new Multiplication(exp1, dRight)
+        );
+    }
 }

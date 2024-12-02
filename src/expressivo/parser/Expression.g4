@@ -33,6 +33,9 @@ root : sum EOF;
 sum : primitive ('+' primitive)*;
 primitive : NUMBER | '(' sum ')';
 NUMBER : [0-9]+;
+product : primitive ('*' primitive)*;
+VARIABLE : [A-Za-z]+;
+
 
 /* Tell Antlr to ignore spaces around tokens. */
 SPACES : [ ]+ -> skip;

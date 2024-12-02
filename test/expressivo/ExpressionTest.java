@@ -39,6 +39,23 @@ public class ExpressionTest {
     //   - Variables can be combined with numbers in expressions
     //   - Complex expressions with variables are formatted correctly
     //   - HashCode is consistent for equal variables and expressions containing variables
+	// parse(input)
+    //     Expression type: Number, Variable, Addition, Multiplication
+    //       Addition and Multiplication operation: +, *
+    //       Operation.left, right type: Number, Variable, Operation
+    //       Operations follow order of operations or don't
+    //     input is a valid expression or isn't
+	private final Expression zero = new Number(0);
+    private final Expression one = new Number(1);
+    private final Expression two = new Number(2);
+    private final Expression x = new Variable("x");
+    private final Expression y = new Variable("y");
+
+    private final Expression exp1 = new Addition(one, x);
+    private final Expression exp2 = new Multiplication(x, one);
+    private final Expression exp3 = new Multiplication(exp1, exp2);
+    private final Expression exp4 = new Multiplication(x, y);
+    
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
         assert false; // make sure assertions are enabled with VM argument: -ea
@@ -199,5 +216,78 @@ public class ExpressionTest {
         Expression exp2 = Expression.add(var2, new Number(1.0));
         assertEquals(exp1.hashCode(), exp2.hashCode());
     }
+    @Test
+    public void testParseNumber() {
+        Expression exp = Expression.parse("1");
+        assertEquals("expected parsed expression", one, exp);
+    }
+
+    @Test
+    public void testParseVariable() {
+        Expression exp = Expression.parse("x");
+        assertEquals("expected parsed expression", x, exp);
+    }
+
+    @Test
+    public void testParsePlus() {
+        Expression exp = Expression.parse("1 + x");
+        assertEquals("expected parsed expression", exp1, exp);
+    }
+
+    @Test
+    public void testParseMultiply() {
+        Expression exp = Expression.parse("x * 1");
+        assertEquals("expected parsed expression", exp2, exp);
+    }
+
+    @Test
+    public void testParseExpressions() {
+        Expression exp = Expression.parse("(1 + x) * (x * 1)");
+        assertEquals("expected parsed expression", exp3, exp);
+    }
+
+    @Test
+    public void testParseIllegal() {
+        try {
+            Expression exp = Expression.parse("3 x");
+            assert false; // should not reach here
+        }
+        catch (IllegalArgumentException e) {
+            assert true;
+        }
+    }
     
+    @Test
+    public void testDifferentiateNumber() {
+        assertEquals("expected differentiated expression", one.differentiate("x"), zero);
+    }
+
+    @Test
+    public void testDifferentiateVariable() {
+        assertEquals("expected differentiated expression", x.differentiate("x"), one);
+    }
+
+    @Test
+    public void testDifferentiatePlus() {
+        Expression exp = new Addition(zero, one);
+        assertEquals("expected differentiated expression", exp1.differentiate("x"), exp);
+    }
+
+    @Test
+    public void testDifferentiateMultiply() {
+        Expression exp = new Addition(new Multiplication(one, one),
+            new Multiplication(x, zero));
+        assertEquals("expected differentiated expression", exp2.differentiate("x"), exp);
+    }
+
+    @Test
+    public void testDifferentiateSingleSameVariable() {
+        Expression left = new Multiplication(new Addition(zero, one),
+            new Multiplication(x, one));
+        Expression right = new Multiplication(new Addition(one, x),
+            new Addition(new Multiplication(one, one), new Multiplication(x, zero)));
+        Expression exp = new Addition(left, right);
+        assertEquals("expected differentiated expression", exp3.differentiate("x"), exp);
+    }
+
 }

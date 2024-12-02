@@ -58,4 +58,7 @@ public class Number implements Expression {
     public boolean isPrimitive() {;
 		return true;
     }
+    @Override public Expression differentiate(String variable) {
+        return new Number(0);
+    }
 }

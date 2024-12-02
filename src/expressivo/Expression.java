@@ -3,8 +3,17 @@
  */
 package expressivo;
 
+import java.util.Map;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import expressivo.parser.ExpressionLexer;
+import expressivo.parser.ExpressionParser;
 import java.util.Stack;
 
 
@@ -32,10 +41,19 @@ public interface Expression {
      * @return expression AST for the input
      * @throws IllegalArgumentException if the expression is invalid
      */
-    public static Expression parse(String input) {
-        throw new RuntimeException("unimplemented");
+	public static Expression parse(String input) {
+        CharStream stream = new ANTLRInputStream(input);
+        ExpressionLexer lexer = new ExpressionLexer(stream);
+        lexer.reportErrorsAsExceptions();
+        TokenStream tokens = new CommonTokenStream(lexer);
+        ExpressionParser parser = new ExpressionParser(tokens);
+        parser.reportErrorsAsExceptions();
+        
+        ParseTree tree = parser.root();
+        ExpressionMaker maker = new ExpressionMaker();
+        new ParseTreeWalker().walk(maker, tree);
+        return maker.getExpression();
     }
-    
     /**
      * @return a parsable representation of this expression, such that
      * for all e:Expression, e.equals(Expression.parse(e.toString())).
@@ -85,4 +103,10 @@ public interface Expression {
     	return new Multiplication(exp1, exp2);
     }
    
+    /**
+     * Differentiate an expression with respect to a variable.
+     * @param variable the variable to differentiate by, a case-sensitive nonempty string of letters.
+     * @return expression's derivative with respect to variable.
+     */
+    public Expression differentiate(String variable);
 }

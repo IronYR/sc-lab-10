@@ -42,5 +42,11 @@ public class Addition implements Expression {
 	public boolean isPrimitive() {
 		return false;
 	}
-	
+	@Override
+    public Expression differentiate(String variable) {
+        // Differentiation rule for addition: d(u + v)/dx = du/dx + dv/dx
+        Expression dLeft = exp1.differentiate(variable);
+        Expression dRight = exp2.differentiate(variable);
+        return new Addition(dLeft, dRight);
+    }
 }

@@ -47,4 +47,7 @@ class Variable implements Expression {
     public boolean isPrimitive() {
 		return true;
     }
+    @Override public Expression differentiate(String variable) {
+        return name.equals(variable) ? new Number(1) : new Number(0);
+    }
 }
